@@ -677,9 +677,9 @@ function MachineANombres() {
             )}
           </div>
         </div>
-      {/* Navigation phase en bas de la sidebar */}
-      <div className="w-full px-4 pb-4 flex flex-col items-center">
-        
+      {/* Navigation phase en bas de la sidebar - hidden during didacticiel */}
+      {!phase.startsWith('didacticiel-') && (
+        <div className="w-full px-4 pb-4 flex flex-col items-center">
           <button
             onClick={goToNextPhase}
             disabled={getCurrentPhaseIndex() >= 62}
@@ -690,7 +690,8 @@ function MachineANombres() {
           >
             Suivante ➡️
           </button>
-      </div>
+        </div>
+      )}
       </aside>
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center h-full bg-slate-100">
