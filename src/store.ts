@@ -61,12 +61,20 @@ function createInitialPhaseStatusMap(): PhaseStatusMap {
 }
 
 // Helper function to send challenge targets to Unity based on phase
-function sendChallengeToUnity(phase: string) {
+function sendChallengeToUnity(phase: string, currentDidacticielTarget?: number) {
     let targets: number[] = [];
 
     // Determine targets based on phase
     if (phase === 'tutorial-challenge') {
         targets = TUTORIAL_CHALLENGE.targets;
+    } else if (phase === 'didacticiel-step2-columns') {
+        // Send all 3 targets for step 2
+        targets = DIDACTICIEL_STEP2_CHALLENGES.targets;
+    } else if (phase === 'didacticiel-step3-free-practice') {
+        // For step 3, use the passed target parameter
+        if (currentDidacticielTarget && currentDidacticielTarget > 0) {
+            targets = [currentDidacticielTarget];
+        }
     } else if (phase.startsWith('challenge-unit-')) {
         const index = parseInt(phase.split('-')[2]) - 1;
         if (index >= 0 && index < UNIT_CHALLENGES.length) {
@@ -290,9 +298,11 @@ export const useStore = create<MachineState>((set, get) => ({
         set({ showInputField: phase === 'intro-count-digits' });
         set({ phase });
 
-        // Send challenge list to Unity when entering a challenge phase
-        if (phase.startsWith('challenge-')) {
-            sendChallengeToUnity(phase);
+        // Send challenge list to Unity when entering a challenge phase or didacticiel phases
+        if (phase.startsWith('challenge-') || phase === 'didacticiel-step2-columns' || phase === 'didacticiel-step3-free-practice') {
+            // For step 3, pass the current target from state
+            const { didacticielStep3Target } = get();
+            sendChallengeToUnity(phase, phase === 'didacticiel-step3-free-practice' ? didacticielStep3Target : undefined);
         }
 
         // Handle loading phase - wait for TTS and Unity to be ready
@@ -4831,6 +4841,9 @@ Tu veux :
             });
             setValue(0);
             
+            // Send the new target to Unity
+            sendChallengeListToUnity([nextTarget]);
+            
             speakAndThen(`Bravo ! ${newSuccessCount} exercice${newSuccessCount > 1 ? 's' : ''} réussi${newSuccessCount > 1 ? 's' : ''} ! Voici un nouveau nombre : ${nextTarget} !`);
             get().updateInstruction();
         } else {
@@ -4913,14 +4926,21 @@ useStore.subscribe(
                 // During unlock phase, keep everything locked to show the unlocking animation
                 lockUnits = false;
                 lockTens = false;
-            }
-            else if (phase == 'practice-ten') {
+            } else if (phase == 'practice-ten') {
                 // During unlock phase, keep everything locked to show the unlocking animation
                 lockUnits = false;
                 lockTens = false;
-            }
-
-            else if (phase === "normal") {
+            } else if (phase === "didacticiel-step1-buttons") {
+                // Handle simplified tutorial (didacticiel) phases
+                // Step 1: Only unlock units column for button discovery
+                lockUnits = false;
+            } else if (phase === "didacticiel-step2-columns" || phase === "didacticiel-step3-free-practice") {
+                // Steps 2 & 3: Unlock all columns for column understanding and free practice
+                lockUnits = false;
+                lockTens = false;
+                lockHundreds = false;
+                lockThousands = false;
+            } else if (phase === "normal") {
                 // In normal mode, directly use store unlock state
                 lockUnits = !isUnit;
                 lockTens = !isTen;
