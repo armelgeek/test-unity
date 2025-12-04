@@ -67,6 +67,15 @@ function sendChallengeToUnity(phase: string) {
     // Determine targets based on phase
     if (phase === 'tutorial-challenge') {
         targets = TUTORIAL_CHALLENGE.targets;
+    } else if (phase === 'didacticiel-step2-columns') {
+        // Send all 3 targets for step 2
+        targets = DIDACTICIEL_STEP2_CHALLENGES.targets;
+    } else if (phase === 'didacticiel-step3-free-practice') {
+        // For step 3, send the current random target
+        const currentTarget = useStore.getState().didacticielStep3Target;
+        if (currentTarget > 0) {
+            targets = [currentTarget];
+        }
     } else if (phase.startsWith('challenge-unit-')) {
         const index = parseInt(phase.split('-')[2]) - 1;
         if (index >= 0 && index < UNIT_CHALLENGES.length) {
@@ -290,8 +299,8 @@ export const useStore = create<MachineState>((set, get) => ({
         set({ showInputField: phase === 'intro-count-digits' });
         set({ phase });
 
-        // Send challenge list to Unity when entering a challenge phase
-        if (phase.startsWith('challenge-')) {
+        // Send challenge list to Unity when entering a challenge phase or didacticiel phases
+        if (phase.startsWith('challenge-') || phase === 'didacticiel-step2-columns' || phase === 'didacticiel-step3-free-practice') {
             sendChallengeToUnity(phase);
         }
 
@@ -4831,6 +4840,9 @@ Tu veux :
             });
             setValue(0);
             
+            // Send the new target to Unity
+            sendChallengeListToUnity([nextTarget]);
+            
             speakAndThen(`Bravo ! ${newSuccessCount} exercice${newSuccessCount > 1 ? 's' : ''} réussi${newSuccessCount > 1 ? 's' : ''} ! Voici un nouveau nombre : ${nextTarget} !`);
             get().updateInstruction();
         } else {
@@ -4920,6 +4932,17 @@ useStore.subscribe(
                 lockTens = false;
             }
 
+            // Handle simplified tutorial (didacticiel) phases
+            else if (phase === "didacticiel-step1-buttons") {
+                // Step 1: Only unlock units column for button discovery
+                lockUnits = false;
+            } else if (phase === "didacticiel-step2-columns" || phase === "didacticiel-step3-free-practice") {
+                // Steps 2 & 3: Unlock all columns for column understanding and free practice
+                lockUnits = false;
+                lockTens = false;
+                lockHundreds = false;
+                lockThousands = false;
+            }
             else if (phase === "normal") {
                 // In normal mode, directly use store unlock state
                 lockUnits = !isUnit;
