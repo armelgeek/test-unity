@@ -80,6 +80,7 @@ export abstract class PhaseBase<TState = any> {
     handler: (data: P) => void
   ): void {
     if (!this.stateManager) {
+      console.log(`[Phase:${this.id}] onUnityEvent('${messageType}') - queued (stateManager not ready)`);
       this._pendingEvents.push(() => this.onUnityEvent(messageType, handler));
       return;
     }
@@ -87,6 +88,7 @@ export abstract class PhaseBase<TState = any> {
     const bridge = this.ensureBridge('onUnityEvent');
     if (!bridge) return;
 
+    console.log(`[Phase:${this.id}] onUnityEvent('${messageType}') - registering handler`);
     const off = bridge.on(messageType, handler);
     this.addCleanup(off);
   }
