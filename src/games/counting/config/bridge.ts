@@ -25,9 +25,8 @@ export class UnityBridge extends AbstractBridge {
 
   protected setupReceiver(): void {
     window.onUnityMessage = (message: any) => {
-      console.log("[GLOBAL] window.onUnityMessage appelé avec:", message);
-      // ...existing code...
-      console.log("[UnityBridge override] Message:", message);
+      console.log("[UnityBridge] window.onUnityMessage appelé avec:", message);
+      
       if (this.unityMessageCallback) {
         try {
           this.unityMessageCallback(message);
@@ -35,27 +34,35 @@ export class UnityBridge extends AbstractBridge {
           console.error("[UnityBridge] unityMessageCallback error:", e);
         }
       }
+      
       try {
         if (typeof message === 'string') {
+          // Try to parse as JSON first
           try {
             const parsed = JSON.parse(message);
-            if (parsed && typeof parsed === 'object') {
+            // Basic validation: check if it's a plain object with expected structure
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && 
+                typeof parsed.type === 'string') {
+              console.log("[UnityBridge] Parsed JSON message:", parsed);
               this.receiveMessage(parsed);
               return;
             }
-          } catch (e) {
+          } catch (_jsonParseError) {
+            // Not JSON, continue with string parsing
           }
 
+          // Always send raw message as UnityMessage type
           this.receiveMessage({
             type: 'UnityMessage',
             data: message as any,
             timestamp: Date.now()
           });
 
-          // Specific parsers
+          // Parse specific message formats
           if (message.startsWith('set value ')) {
             const value = parseInt(message.replace('set value ', ''), 10);
             if (!isNaN(value)) {
+              console.log(`[UnityBridge] Parsed 'set value' message with value:`, value);
               this.receiveMessage({
                 type: 'SetValue',
                 data: value as any,
@@ -64,12 +71,16 @@ export class UnityBridge extends AbstractBridge {
             }
           }
         } else {
+          // Received non-string message
+          console.log("[UnityBridge] Received non-string message:", message);
           this.receiveMessage(message);
         }
       } catch (e) {
         console.error("[UnityBridge] Failed to process message:", e);
       }
     };
+    
+    console.log("[UnityBridge] Message receiver registered on window.onUnityMessage");
   }
 
   protected sendRaw(message: { type: string; data: any }): void {
@@ -78,6 +89,8 @@ export class UnityBridge extends AbstractBridge {
       return;
     }
     try {
+      // Unity expects format like "SetValue123" (type concatenated with data)
+      // This matches the format used by existing Unity functions (e.g., SetValue322)
       this.sendMessageCallback('WebBridge', 'ReceiveStringMessageFromJs', message.type + message.data);
     } catch (error) {
       console.error('[Unity Bridge] Error sending to Unity:', error);
@@ -101,3 +114,21 @@ export class UnityBridge extends AbstractBridge {
 export const unityBridge = new UnityBridge(
   true
 );
+
+// Global utility for testing - allows simulating Unity messages from browser console
+// Only available in development mode to avoid namespace pollution
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
+  (window as any).__UNITY_TEST__ = {
+    simulateUnityMessage: (message: string): void => {
+      console.log('[Test Utility] Simulating Unity message:', message);
+      if (typeof window.onUnityMessage === 'function') {
+        window.onUnityMessage(message);
+      } else {
+        console.error('[Test Utility] window.onUnityMessage is not defined!');
+      }
+    }
+  };
+  // Also expose at top level for easier access in dev console
+  (window as any).simulateUnityMessage = (window as any).__UNITY_TEST__.simulateUnityMessage;
+  console.log('[UnityBridge] Test utility available: window.simulateUnityMessage() or window.__UNITY_TEST__.simulateUnityMessage()');
+}
