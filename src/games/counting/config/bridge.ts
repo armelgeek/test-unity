@@ -45,7 +45,7 @@ export class UnityBridge extends AbstractBridge {
               this.receiveMessage(parsed);
               return;
             }
-          } catch {
+          } catch (_jsonParseError) {
             // Not JSON, continue with string parsing
           }
 
@@ -113,7 +113,7 @@ export const unityBridge = new UnityBridge(
 
 // Global utility for testing - allows simulating Unity messages from browser console
 if (typeof window !== 'undefined') {
-  (window as any).simulateUnityMessage = (message: string) => {
+  (window as any).simulateUnityMessage = (message: string): void => {
     console.log('[Test Utility] Simulating Unity message:', message);
     if (typeof window.onUnityMessage === 'function') {
       window.onUnityMessage(message);

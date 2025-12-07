@@ -49,12 +49,17 @@
             logDiv.textContent += `[${timestamp}] ${message}\n`;
         }
 
-        // Override console.log to show in our log div too
+        // Override console.log to show in our log div too (for testing only)
+        // Note: This can be disabled by refreshing the page
         const originalLog = console.log;
-        console.log = function(...args) {
-            originalLog.apply(console, args);
-            log('CONSOLE: ' + args.join(' '));
-        };
+        const enableConsoleCapture = true; // Set to false to disable
+        
+        if (enableConsoleCapture) {
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                log('CONSOLE: ' + args.join(' '));
+            };
+        }
     </script>
 </body>
 </html>
