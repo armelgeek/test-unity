@@ -114,13 +114,19 @@ export const unityBridge = new UnityBridge(
 );
 
 // Global utility for testing - allows simulating Unity messages from browser console
-if (typeof window !== 'undefined') {
-  (window as any).simulateUnityMessage = (message: string): void => {
-    console.log('[Test Utility] Simulating Unity message:', message);
-    if (typeof window.onUnityMessage === 'function') {
-      window.onUnityMessage(message);
-    } else {
-      console.error('[Test Utility] window.onUnityMessage is not defined!');
+// Only available in development mode to avoid namespace pollution
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
+  (window as any).__UNITY_TEST__ = {
+    simulateUnityMessage: (message: string): void => {
+      console.log('[Test Utility] Simulating Unity message:', message);
+      if (typeof window.onUnityMessage === 'function') {
+        window.onUnityMessage(message);
+      } else {
+        console.error('[Test Utility] window.onUnityMessage is not defined!');
+      }
     }
   };
+  // Also expose at top level for easier access in dev console
+  (window as any).simulateUnityMessage = (window as any).__UNITY_TEST__.simulateUnityMessage;
+  console.log('[UnityBridge] Test utility available: window.simulateUnityMessage() or window.__UNITY_TEST__.simulateUnityMessage()');
 }
