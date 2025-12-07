@@ -87,6 +87,8 @@ export class UnityBridge extends AbstractBridge {
       return;
     }
     try {
+      // Unity expects format like "SetValue123" (type concatenated with data)
+      // This matches the format used by existing Unity functions (e.g., SetValue322)
       this.sendMessageCallback('WebBridge', 'ReceiveStringMessageFromJs', message.type + message.data);
     } catch (error) {
       console.error('[Unity Bridge] Error sending to Unity:', error);
