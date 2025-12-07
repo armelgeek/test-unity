@@ -45,7 +45,7 @@ export class UnityBridge extends AbstractBridge {
               this.receiveMessage(parsed);
               return;
             }
-          } catch (e) {
+          } catch {
             // Not JSON, continue with string parsing
           }
 
