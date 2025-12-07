@@ -26,6 +26,11 @@ export const MESSAGE_REGISTRY: MessageRegistry = {
         type: 'LockUnit',
         direction: 'toUnity'
     },
+    'UnityMessage': {
+        type: 'UnityMessage',
+        direction: 'fromUnity',
+        description: 'Raw string messages from Unity (all messages are sent with this type)'
+    },
     'UnityRawMessage': {
         type: 'UnityRawMessage',
         direction: 'fromUnity'

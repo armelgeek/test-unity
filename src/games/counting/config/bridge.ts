@@ -40,7 +40,9 @@ export class UnityBridge extends AbstractBridge {
           // Try to parse as JSON first
           try {
             const parsed = JSON.parse(message);
-            if (parsed && typeof parsed === 'object') {
+            // Basic validation: check if it's a plain object with expected structure
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && 
+                typeof parsed.type === 'string') {
               console.log("[UnityBridge] Parsed JSON message:", parsed);
               this.receiveMessage(parsed);
               return;
