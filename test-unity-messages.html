@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity Message Test</title>
+</head>
+<body>
+    <h1>Unity Message Testing</h1>
+    <button onclick="simulateUnityMessage()">Simulate Unity "set value 123" Message</button>
+    <button onclick="simulateUnityJSON()">Simulate Unity JSON Message</button>
+    <button onclick="checkHandler()">Check window.onUnityMessage</button>
+    
+    <div id="log" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap;"></div>
+
+    <script>
+        // This simulates what Unity does when it sends a message
+        function simulateUnityMessage() {
+            log('Simulating Unity message: "set value 123"');
+            if (typeof window.onUnityMessage === 'function') {
+                window.onUnityMessage('set value 123');
+            } else {
+                log('ERROR: window.onUnityMessage is not a function!');
+            }
+        }
+
+        function simulateUnityJSON() {
+            log('Simulating Unity JSON message');
+            const message = JSON.stringify({ type: 'SetValue', data: 456, timestamp: Date.now() });
+            if (typeof window.onUnityMessage === 'function') {
+                window.onUnityMessage(message);
+            } else {
+                log('ERROR: window.onUnityMessage is not a function!');
+            }
+        }
+
+        function checkHandler() {
+            log('Checking window.onUnityMessage...');
+            if (typeof window.onUnityMessage === 'function') {
+                log('window.onUnityMessage is defined: ' + window.onUnityMessage.toString().substring(0, 100));
+            } else {
+                log('ERROR: window.onUnityMessage is not defined!');
+            }
+        }
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toISOString();
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+        }
+
+        // Override console.log to show in our log div too
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            log('CONSOLE: ' + args.join(' '));
+        };
+    </script>
+</body>
+</html>

@@ -30,10 +30,17 @@ export abstract class AbstractBridge {
     }
 
     this.messageHandlers.get(messageType)!.add(handler as MessageHandler<any>);
+    
+    if (this.debug) {
+      console.log(`[Bridge] Handler registered for message type: ${messageType}`);
+    }
 
     // Retourner fonction de nettoyage
     return () => {
       this.messageHandlers.get(messageType)?.delete(handler as MessageHandler<any>);
+      if (this.debug) {
+        console.log(`[Bridge] Handler unregistered for message type: ${messageType}`);
+      }
     };
   }
 
@@ -107,6 +114,9 @@ export abstract class AbstractBridge {
     // Appeler tous les handlers enregistrés
     const handlers = this.messageHandlers.get(message.type);
     if (handlers) {
+      if (this.debug) {
+        console.log(`[Bridge] Calling ${handlers.size} handler(s) for ${message.type}`);
+      }
       handlers.forEach(handler => {
         try {
           handler(message.data);
@@ -114,6 +124,10 @@ export abstract class AbstractBridge {
           console.error(`[Bridge] Error in handler for ${message.type}:`, error);
         }
       });
+    } else {
+      if (this.debug) {
+        console.log(`[Bridge] No handlers registered for ${message.type}`);
+      }
     }
   }
 
