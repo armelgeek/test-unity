@@ -19,12 +19,12 @@ export class StageIntroPhase extends PhaseBase {
 
     const introSentence = `On passe maintenant à l’étape ${this.stageNumber}. ${this.stageName}. ${this.stageDescription}.`;
     await this.speak(introSentence);
-    await this.speak(`Pour chaque nombre, je débloque une colonne à la fois pour que tu puisses te concentrer.`);
+    await this.speak(`Pour chaque nombre, je vais débloquer les colonnes une par une. Les colonnes validées resteront accessibles.`);
 
     // Mettre à jour l'interface
     this.updateGameState({
       message: `Étape ${this.stageNumber}/4: ${this.stageName}`,
-      instruction: this.stageDescription
+      instruction: `${this.stageDescription} Les colonnes seront débloquées progressivement.`
     });
 
     // Petite pause pour laisser le temps de lire

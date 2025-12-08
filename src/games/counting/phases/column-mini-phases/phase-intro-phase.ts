@@ -27,11 +27,11 @@ export class PhaseIntroductionPhase extends PhaseBase {
     this.sendToUnity('LockHundred:', 0);
     await this.speak('les millièmes');
     this.sendToUnity('LockThousand:', 0);
-    await this.speak('Je vais te guider étape par étape. Pour chaque nombre, je débloque une colonne à la fois pour que tu puisses te concentrer. Commençons doucement avec les Unités, puis nous ajouterons progressivement les autres colonnes.');
+    await this.speak('Je vais te guider étape par étape. Pour chaque nombre, je vais débloquer les colonnes progressivement, une par une. Les colonnes validées resteront accessibles. Commençons doucement avec les Unités, puis nous ajouterons progressivement les autres colonnes.');
 
     this.updateGameState({
       message: 'Découvrons les positions ensemble !',
-      instruction: 'Je vais te guider étape par étape. Pour chaque nombre, je débloque une seule colonne à la fois. D\'abord les Unités, puis les Dizaines, ensuite les Centaines, et enfin les Millièmes.',
+      instruction: 'Je vais te guider étape par étape. Pour chaque nombre, je débloque les colonnes progressivement, une par une. D\'abord les Unités, puis les Dizaines, ensuite les Centaines, et enfin les Millièmes. Les colonnes validées resteront accessibles.',
       showValidateButton: false
     });
 
