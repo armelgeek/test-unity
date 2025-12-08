@@ -56,12 +56,14 @@ export class ColumnFillPhase extends PhaseBase {
     await this.speak(`Pour obtenir le nombre ${this.targetNumber}, il faut mettre ${targetDigit} dans la colonne des ${positionName}.`);
     await this.speak(`Utilise les boutons pour y placer ${targetDigit}.`);
 
+    const instructionText = this.columnIndex === 0
+      ? `La colonne des ${positionName} est débloquée. Remplis-la avec le chiffre ${targetDigit} en utilisant les boutons ↑ et ↓.`
+      : `Les colonnes précédentes restent accessibles. Remplis maintenant la colonne des ${positionName} avec le chiffre ${targetDigit} en utilisant les boutons ↑ et ↓.`;
+
     this.updateGameState({
       message: `Colonne: ${positionName} → ${targetDigit}`,
       currentDigit: positionName,
-      instruction: this.columnIndex === 0 
-        ? `La colonne des ${positionName} est débloquée. Remplis-la avec le chiffre ${targetDigit} en utilisant les boutons ↑ et ↓.`
-        : `Les colonnes précédentes restent accessibles. Remplis maintenant la colonne des ${positionName} avec le chiffre ${targetDigit} en utilisant les boutons ↑ et ↓.`,
+      instruction: instructionText,
       showValidateButton: false
     });
 
