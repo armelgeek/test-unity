@@ -72,6 +72,7 @@ class NumberIntroPhase extends PhaseBase {
   async execute(): Promise<void> {
     console.log(`🎯 Exercice ${this.exerciseNumber}/3: ${this.targetNumber}`);
 
+    // Apply locks BEFORE sending ChangeList to prevent flashing all columns
     const lockCommands = ['LockUnit:', 'LockTen:', 'LockHundred:', 'LockThousand:'];
     for (let i = 0; i < lockCommands.length; i++) {
       const lockValue = i <= this.maxPosition ? 0 : 1;

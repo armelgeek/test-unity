@@ -255,8 +255,8 @@ export class FreePracticePhase extends PhaseBase {
   }
 
   private startNewExercise(): void {
-    // Générer un nombre aléatoire
-    const randomNum = Math.floor(Math.random() * 10000);
+    // Générer un nombre aléatoire entre 1 et 9999
+    const randomNum = Math.floor(Math.random() * 9999) + 1;
     this.currentTarget = randomNum.toString().padStart(4, '0');
     this.currentPosition = 0; // Recommencer à l'unité
 

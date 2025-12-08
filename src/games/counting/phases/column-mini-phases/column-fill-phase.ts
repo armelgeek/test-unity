@@ -48,14 +48,20 @@ export class ColumnFillPhase extends PhaseBase {
     }
 
     await this.speak(`C'est le moment de remplir la colonne des ${positionName}.`);
-    await this.speak(`Seule cette colonne est débloquée pour que tu puisses te concentrer.`);
+    if (this.columnIndex === 0) {
+      await this.speak(`Cette colonne est débloquée pour que tu puisses te concentrer.`);
+    } else {
+      await this.speak(`Les colonnes précédentes restent accessibles. Concentre-toi maintenant sur la colonne des ${positionName}.`);
+    }
     await this.speak(`Pour obtenir le nombre ${this.targetNumber}, il faut mettre ${targetDigit} dans la colonne des ${positionName}.`);
     await this.speak(`Utilise les boutons pour y placer ${targetDigit}.`);
 
     this.updateGameState({
       message: `Colonne: ${positionName} → ${targetDigit}`,
       currentDigit: positionName,
-      instruction: `Seule la colonne des ${positionName} est débloquée. Remplis-la avec le chiffre ${targetDigit} en utilisant les boutons ↑ et ↓.`,
+      instruction: this.columnIndex === 0 
+        ? `La colonne des ${positionName} est débloquée. Remplis-la avec le chiffre ${targetDigit} en utilisant les boutons ↑ et ↓.`
+        : `Les colonnes précédentes restent accessibles. Remplis maintenant la colonne des ${positionName} avec le chiffre ${targetDigit} en utilisant les boutons ↑ et ↓.`,
       showValidateButton: false
     });
 
